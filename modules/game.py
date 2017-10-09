@@ -14,6 +14,7 @@ class Game:
     inf_x = 40
     inf_y = 12
     turn_len = 100
+    vision_range = 10
 
     offmap_sym = ' '
     offmap_color = Color.Gray
@@ -28,7 +29,7 @@ class Game:
 
         self.log = Log()
         self.area = Area(60, 40)
-        self.player = Actor(self)
+        self.player = Actor(self, True)
         self.player.x, self.player.y = 0, self.area.size_y // 2
         self.npcs = []
         for i in range(random.randint(3, 5)):
@@ -62,6 +63,7 @@ class Game:
             self.update_log()
 
     def update_display(self):
+        self.player.calc_vision()
         self.display_map(self.player.x, self.player.y, self.wmap)
         # self.d.prn(self.player.get_sym(), self.wmap.size_x // 2, self.wmap.size_y // 2,
         #            self.player.get_color(), win=self.wmap)
@@ -114,7 +116,8 @@ class Game:
                     ter = self.area.terrain(mx, my)
                     f1 = int(mx * 3.14) ^ int(my * 1.235)
                     f2 = int(mx * 2.77 + my) ^ int (my + 3.12)
-                    self.d.prn(ter.get_sym(f1), color=ter.get_color(f2), win=win)
+                    colr = ter.get_color(f2) if self.player.is_visible(mx, my) else Color.Dark
+                    self.d.prn(ter.get_sym(f1), color=colr, win=win)
         for a in self.npcs + [self.player]:
             self.d.prn(a.get_sym(), self.x_to_disp(a.x, ctrx, win), self.y_to_disp(a.y, ctry, win),
                        a.get_color(), win=win)
