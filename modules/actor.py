@@ -54,7 +54,7 @@ class Actor:
         for i in range(self.vision_dim * self.vision_dim):
             self.vision_arr[i] = self.vision_unknown
 
-        kdark = 1.0 / self.g.vision_range
+        cdark = 250 // self.g.vision_range
         for (vx, vy) in gen_border(self):
             # vx, vy = is inside self.vision_arr, i.e. in range(self.vision_dim), iterating over border of vision_arr
             # rx, ry = is relative of player position, i.e. in range(-self.vision_dim//2, self.vision_dim//2+1)
@@ -64,39 +64,36 @@ class Actor:
             d = self.vision_dim // 2
             rx = vx - d
             ry = vy - d
-            r = 0
             for (cx, cy) in bresenham((0, 0), (rx, ry)):
-                if r >= self.g.vision_range:
-                    break
+                # if cx * cx + cy * cy > (self.g.vision_range + 0.5) * (self.g.vision_range + 0.5):
+                #     self.vision_arr[cx + d + (cy + d) * self.vision_dim] = 0
+                #     continue
                 tx = self.x + cx
                 ty = self.y + cy
                 if tx not in range(self.g.area.size_x) or \
                    ty not in range(self.g.area.size_y):
                     self.vision_arr[cx + d + (cy + d) * self.vision_dim] = 0
-                    break
-                cv = self.vision_arr[cx + d + (cy + d) * self.vision_dim]
-                if cv != self.vision_unknown:
-                    vision = cv
                     continue
-                if vision:
-                    tv = self.g.area.terrain(tx, ty).vision
-                    vision = int(vision * tv * kdark)
-                self.vision_arr[cx + d + (cy + d) * self.vision_dim] = vision
-                r += 1
+                cv = self.vision_arr[cx + d + (cy + d) * self.vision_dim]
+                if vision > cv or cv == self.vision_unknown:
+                    self.vision_arr[cx + d + (cy + d) * self.vision_dim] = vision
+                tv = self.g.area.terrain(tx, ty).vision
+                vision = max(int(vision * tv - cdark), 0)
 
+        # print(" ")
         # for y in range(self.vision_dim):
         #     s = ""
         #     for x in range(self.vision_dim):
-        #         s += "{0:2x}".format(self.vision_arr[x + y * self.vision_dim])
+        #         s += "{0:2x}|".format(self.vision_arr[x + y * self.vision_dim])
         #     print (s)
 
 
     def is_visible(self, x, y):
-        vx = x - self.x
-        vy = y - self.y
-        visible = vx in range(-self.g.vision_range, self.g.vision_range * 2 + 1) and \
-                  vy in range(-self.g.vision_range, self.g.vision_range * 2 + 1) and \
-                  self.vision_arr[vx + vy * self.vision_dim] > 0
+        vx = x - self.x + self.g.vision_range
+        vy = y - self.y + self.g.vision_range
+        inr = vx in range(0, self.g.vision_range * 2 + 1) and \
+              vy in range(0, self.g.vision_range * 2 + 1)
+        return inr and self.vision_arr[vx + vy * self.vision_dim] > 0
 
     def pass_time(self, tu):
         self.tu -= tu

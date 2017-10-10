@@ -108,11 +108,13 @@ class Display:
         self.fontb = pygame.font.Font(fntb_name, fnt_size)
         self.sym_x, self.sym_y = self.font.size('A')
         self.init_screen(scr_size)
-        pygame.display.set_caption('Yet Another Crawler (unversioned)')
         icon = self.font.render('@', True, (255, 255, 255), (0, 0, 0))
         pygame.display.set_icon(icon)
         self.bg_color = Color.Black
         self.is_running = True
+
+    def set_caption(self, caption):
+        pygame.display.set_caption(caption)
 
     def init_screen(self, scr_size):
         self.pix_x, self.pix_y = scr_size

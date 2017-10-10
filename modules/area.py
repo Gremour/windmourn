@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from modules.terrain import reference, name2num
+# from modules.algos import bresenham
 
 from array import array
 import random
@@ -61,7 +62,12 @@ class Area:
             by -= bh // 2
             ruin = True if random.randrange(5) > 0 else False
             metal = True if random.randrange(10) == 0 else False
+            ruin = False
             self.gen_building(bx, by, bw, bh, ruin, metal)
+
+        # for i in range(20):
+        #     for (x, y) in bresenham((self.size_x//2, self.size_y//2), (self.size_x//2-20+i*2, self.size_y//2+15)):
+        #         self.change_terrain(x, y, (['red', 'blue', 'yellow'])[i % 3])
 
     def gen_building(self, x, y, w, h, ruin=False, metal=False):
         wall = ['metal wall'] if metal else ['brick wall']
