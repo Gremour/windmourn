@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+# Actors are characters (player or monsters, if you like) in game
 
-from modules.display import Color
-from modules.log import vowels
+from modules.numbers import Color, vowels
 from modules.algos import bresenham
 from enum import IntEnum
 import random
@@ -153,7 +153,8 @@ class Actor:
                 return
             elif trv < 0.8:
                 if random.randrange(100) < (1 - tar.travel) * 50:
-                    self.g.log.add("{me} trip{s} and fall{s} down".format(me=self.get_name(), s=self.s()))
+                    self.g.log.add("{me} trip{s} over a{n} {ter} and fall{s} down".format(
+                        me=self.get_name(), s=self.s(), n=an, ter=tar.name))
                     self.is_sprawled = True
                 else:
                     if self.is_player:

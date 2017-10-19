@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Terrain describing stuff
 
 from modules.display import Color
 import random
@@ -35,7 +36,7 @@ class Terrain:
             return self.sym[feature % lenff]
 
 # No duplicate names allowed!
-reference = [
+ter_reference = [
     Terrain('under construction', '?', Color.Weird),
     Terrain('grass', '.,', [Color.Green, Color.Pine, Color.Yellow],
         travel=0.95),
@@ -55,7 +56,7 @@ reference = [
     Terrain('open door', '/', Color.Brown, travel=0.9, vision=0.9, cover=0.2)
     ]
 
-ter_names = [ter.name for ter in reference]
+ter_names = [ter.name for ter in ter_reference]
 assert len(ter_names) == len(set(ter_names)), \
     "terrain.reference contains duplicate names"
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+# A piece of map, which is active now
 
-from modules.terrain import reference, name2num
+from modules.terrain import ter_reference, name2num
 # from modules.algos import bresenham
 
 from array import array
@@ -17,7 +18,9 @@ class Area:
         self.gen_plains()
 
     def terrain(self, x, y):
-        return reference[self.ter[self.pos(x, y)]]
+        if y not in range(self.size_y) or x not in range(self.size_x):
+            return None
+        return ter_reference[self.ter[self.pos(x, y)]]
 
     def change_terrain(self, x, y, tername):
         self.ter[self.pos(x, y)] = name2num[tername]

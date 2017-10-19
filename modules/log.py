@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
+# Code to collect and display log of events
 
 from collections import deque
 from modules.display import Color
-
-endofstr = ('.', '!', '?')
-vowels = ('a', 'e', 'i', 'o', 'u', 'y')
+from modules.numbers import endofstr
 
 class Line:
     """Log's line consists of words and colors"""
@@ -82,17 +81,29 @@ class Log:
         self.default_color = Color.Gray
         self.symbol_color = Color.Dark
 
-        # Index of messages of the latest turn
-        self.fresh_index = -1
-
         # Index of the last line, that is displayed in log window
         self.cursor = -1
 
+        # Index of messages of the latest turn
+        self.fresh_index = -1
+
+        # Index of temporary messages (not saved in log, but displayed as promt currently)
+        self.temp_index = -1
+
     def next_turn(self):
+        self.clear_temp()
         self.fresh_index = len(self.lines)
         self.cursor = self.fresh_index - 1
 
-    def add(self, text, colors=None):
+    def clear_temp(self):
+        if self.temp_index < 0:
+            return
+        while len(self.lines) > self.temp_index:
+            self.lines.pop()
+        self.temp_index = -1
+        self.cursor = len (self.lines) - 1
+
+    def add(self, text, colors=None, temp=False):
         """This function adds a line into log.
 
         '@' symbols are replaced with color change command.
@@ -100,13 +111,17 @@ class Log:
         If tuple is shorter than number of '@' symbols, default log color will be used
         To print '@', double it ('@@')"""
 
+        if not temp and self.temp_index >= 0:
+            self.clear_temp()
+
         while len(self.lines) >= self.max_lines:
             self.lines.popleft()
             self.fresh_index -= 1
+            self.temp_index -= 1
             self.cursor -= 1
 
         new_line = Line(text, self.default_color, colors)
-        if len(self.lines) > 0 and new_line.tokens == self.lines[-1].tokens:
+        if not temp and len(self.lines) > 0 and new_line.tokens == self.lines[-1].tokens:
             self.lines[-1].mul += 1
             if self.fresh_index >= len(self.lines):
                 self.fresh_index = len(self.lines) - 1
@@ -114,11 +129,14 @@ class Log:
             self.lines.append(new_line)
         self.cursor = len (self.lines) - 1
 
+        if temp and self.temp_index < 0:
+            self.temp_index = self.cursor
+
     def prn(self, d, win):
         y = win.size_y - 1
         cur = self.cursor
         while y >= 0 and cur >= 0:
-            log_sym = '+' if cur >= self.fresh_index else ' '
+            log_sym = '>' if cur >= self.temp_index and self.temp_index >= 0 else '+' if cur >= self.fresh_index else ' '
             printed = self.lines[cur].prn(d, win, y)
             cur -= 1
             y -= printed

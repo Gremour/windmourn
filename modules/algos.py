@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Some algorithms to use
 
 
 def bresenham(start_point, end_point, start=0, end=-1, step=1):
